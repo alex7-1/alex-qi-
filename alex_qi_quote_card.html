@@ -584,7 +584,7 @@
   <div class="upload-section" id="uploadSection" onclick="document.getElementById('screenshotInput').click()">
     <div class="upload-icon">📸</div>
     <div class="upload-title">上传系统截图 · 自动填表</div>
-    <div class="upload-sub">支持 eprimo / E.ON 等系统截图<br>邮编和用电量仍需手动填写</div>
+    <div class="upload-sub">点击上传 或 直接 Ctrl+V 粘贴截图<br>邮编和用电量仍需手动填写</div>
     <div class="upload-status" id="uploadStatus"></div>
   </div>
   <input type="file" id="screenshotInput" accept="image/*" onchange="handleScreenshot(this)">
@@ -621,11 +621,11 @@
   </div>
   <div class="field-row">
     <label>合同期限</label>
-    <input type="text" data-field="duration" value="12 个月">
+    <input type="text" data-field="duration" id="durationInput" value="12 个月" oninput="syncGuarantee(this.value)">
   </div>
   <div class="field-row">
     <label>价格保证</label>
-    <input type="text" data-field="guarantee" value="12 个月">
+    <input type="text" data-field="guarantee" id="guaranteeInput" value="12 个月" style="color:#7A9680;">
   </div>
 
   <div class="section-hint">核心数字</div>
@@ -1051,6 +1051,27 @@
     }
   });
 
+  // ===== 价格保证期联动合同期限 =====
+  function syncGuarantee(val) {
+    const g = document.getElementById('guaranteeInput');
+    g.value = val;
+    updateField('guarantee', val);
+  }
+
+  // ===== Ctrl+V 粘贴截图支持 =====
+  document.addEventListener('paste', async (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) await handleScreenshot({ files: [file] });
+        break;
+      }
+    }
+  });
+
   // ===== 截图自动识别 =====
   async function handleScreenshot(input) {
     if (!input.files || !input.files[0]) return;
@@ -1096,6 +1117,11 @@
       if (!data.success) throw new Error('识别失败，请重试');
 
       const parsed = data.data;
+
+      // 价格保证期强制等于合同期限
+      if (parsed.duration) {
+        parsed.guarantee = parsed.duration;
+      }
 
       // 填入各字段
       const fieldMap = {
