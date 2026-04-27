@@ -596,6 +596,12 @@
     <button class="mode-btn" data-mode="B">B版 · 对比 check24</button>
   </div>
 
+  <div class="section-hint">能源类型</div>
+  <div class="bonus-toggle">
+    <button class="bonus-btn active" id="type-elec" onclick="switchEnergyType('elec')">⚡ 电</button>
+    <button class="bonus-btn" id="type-gas" onclick="switchEnergyType('gas')">🔥 气</button>
+  </div>
+
   <div class="section-hint">客户信息</div>
   <div class="field-row">
     <label>邮编</label>
@@ -694,7 +700,7 @@
     </div>
     <div class="brand-name">Alex Qi</div>
     <div class="brand-tag">合同严选</div>
-    <div class="card-title">报价单</div>
+    <div class="card-title">报价单 · <span id="card-energy-type">电</span></div>
   </div>
 
   <!-- 客户信息 -->
@@ -704,7 +710,7 @@
       <span class="meta-value" data-bind="plz">52062</span>
     </div>
     <div class="meta-row">
-      <span class="meta-label">年用电量</span>
+      <span class="meta-label" id="label-kwh">年用电量</span>
       <span class="meta-value"><span data-bind="kwh">1500</span> kWh</span>
     </div>
     <div class="meta-row">
@@ -726,7 +732,7 @@
     </div>
     <div class="price-details">
       <div>
-        <span class="label">度电价</span>
+        <span class="label" id="label-arbeit">度电价</span>
         <span class="value"><span data-bind="arbeitspreis">26.99</span> ct/kWh</span>
       </div>
       <div>
@@ -1050,6 +1056,35 @@
       }, 2000);
     }
   });
+
+  // ===== 电/气类型切换 =====
+  let currentEnergyType = 'elec';
+
+  function switchEnergyType(type) {
+    currentEnergyType = type;
+    const isGas = type === 'gas';
+
+    // 切换按钮状态
+    document.getElementById('type-elec').classList.toggle('active', !isGas);
+    document.getElementById('type-gas').classList.toggle('active', isGas);
+
+    // 更新卡片标题
+    document.getElementById('card-energy-type').textContent = isGas ? '气' : '电';
+
+    // 更新客户信息区标签
+    const kwhLabel = document.getElementById('label-kwh');
+    if (kwhLabel) kwhLabel.textContent = isGas ? '年用气量' : '年用电量';
+
+    // 更新度电价/度气价标签
+    const arbeitLabel = document.getElementById('label-arbeit');
+    if (arbeitLabel) arbeitLabel.textContent = isGas ? '度气价' : '度电价';
+
+    // 更新控制面板里的标签
+    const kwhInput = document.querySelector('[data-field="kwh"]');
+    if (kwhInput) {
+      kwhInput.placeholder = isGas ? 'kWh/年（年用气量）' : 'kWh/年（年用电量）';
+    }
+  }
 
   // ===== 价格保证期联动合同期限 =====
   function syncGuarantee(val) {
