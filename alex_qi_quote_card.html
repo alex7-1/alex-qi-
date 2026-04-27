@@ -724,8 +724,11 @@
     <div class="price-supplier" data-bind="supplier">EPRIMO</div>
     <div class="price-contract" data-bind="contract">eprimoStrom PrimaKlima</div>
     <div class="price-main">
-      <span class="big">€<span data-bind="monthly">47</span></span>
+      <span class="big">€<span id="display-monthly">47</span></span>
       <span class="unit">/ 月</span>
+    </div>
+    <div id="avg-monthly-note" style="display:none;font-size:11px;color:#B5C4B7;margin-bottom:4px;">
+      含优惠平均 · 原价 €<span data-bind="monthly">47</span>/月
     </div>
     <div class="price-year" id="firstyear-line">
       一年 <b>€<span data-bind="yearly">564</span></b>（首年实付 €<span data-bind="firstyear">464</span>）
@@ -774,7 +777,7 @@
     <div class="billing-note-icon">ⓘ</div>
     <div class="billing-note-text">
       以上费用为<b>预估年度总额</b> · 按预付月费收取<br>
-      年终电力公司会根据实际用电量<b>多退少补</b>
+      年终<span id="label-company">电力</span>公司会根据实际用<span id="label-usage">电</span>量<b>多退少补</b>
     </div>
   </div>
 
@@ -892,6 +895,10 @@
       renderTags(value);
     }
     updateDiff();
+    // 月费/优惠/期限变化时重算平均月费
+    if (['monthly', 'bonus', 'duration'].includes(field)) {
+      updateAvgMonthly();
+    }
   }
 
   function renderTags(tagString) {
@@ -953,6 +960,30 @@
 
   let hasBonus = true;
 
+  function calcAvgMonthly() {
+    const monthly = parseFloat(document.querySelector('[data-field="monthly"]').value) || 0;
+    const bonus = parseFloat(document.querySelector('[data-field="bonus"]').value) || 0;
+    const durationRaw = document.querySelector('[data-field="duration"]').value || '12';
+    const duration = parseFloat(durationRaw) || 12;
+    return Math.round((monthly - bonus / duration) * 100) / 100;
+  }
+
+  function updateAvgMonthly() {
+    const displayEl = document.getElementById('display-monthly');
+    const noteEl = document.getElementById('avg-monthly-note');
+    if (!displayEl) return;
+
+    if (hasBonus) {
+      const avg = calcAvgMonthly();
+      displayEl.textContent = avg % 1 === 0 ? avg : avg.toFixed(2);
+      if (noteEl) noteEl.style.display = '';
+    } else {
+      const monthly = document.querySelector('[data-field="monthly"]').value || '47';
+      displayEl.textContent = monthly;
+      if (noteEl) noteEl.style.display = 'none';
+    }
+  }
+
   function updateBonusMode(mode) {
     hasBonus = (mode === 'yes');
     bonusBtns.forEach(btn => {
@@ -969,6 +1000,9 @@
     renewalBonusText.textContent = hasBonus
       ? '继续为你争取新客优惠'
       : '继续为你锁定最低价格';
+
+    // 更新平均月费显示
+    updateAvgMonthly();
 
     // 重新渲染标签（过滤掉优惠标签）
     const tagInput = document.querySelector('[data-field="tags"]');
@@ -996,6 +1030,9 @@
 
   // 初始化（默认有优惠）
   updateBonusMode('yes');
+
+  // 初始化平均月费
+  updateAvgMonthly();
 
   // 初始化 supplier 大写
   const supInput = document.querySelector('[data-field="supplier"]');
@@ -1078,6 +1115,12 @@
     // 更新度电价/度气价标签
     const arbeitLabel = document.getElementById('label-arbeit');
     if (arbeitLabel) arbeitLabel.textContent = isGas ? '度气价' : '度电价';
+
+    // 更新年终结算说明
+    const companyLabel = document.getElementById('label-company');
+    if (companyLabel) companyLabel.textContent = isGas ? '能源' : '电力';
+    const usageLabel = document.getElementById('label-usage');
+    if (usageLabel) usageLabel.textContent = isGas ? '气' : '电';
 
     // 更新控制面板里的标签
     const kwhInput = document.querySelector('[data-field="kwh"]');
