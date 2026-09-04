@@ -425,6 +425,11 @@ select.form-input option:disabled {
   opacity: 0.85;
 }
 
+.submit-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .error-tip {
   display: none;
   background: #FEF0EF;
@@ -444,6 +449,10 @@ select.form-input option:disabled {
   border: 0.5px solid var(--line);
   overflow: hidden;
   margin-bottom: 12px;
+}
+
+.result-card.success .result-title {
+  background: #2A5C36;
 }
 
 .result-title {
@@ -481,6 +490,14 @@ select.form-input option:disabled {
 
 .copy-success {
   background: #2A5C36;
+}
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .footer {
@@ -565,7 +582,7 @@ select.form-input option:disabled {
     <div class="security-top">
       <div class="security-icon">i</div>
       <div class="security-main">
-        以下信息<b>仅用于本次合同的签署与履行</b>，处理依据如下：
+        以下信息<b>仅用于本次合同的签署与履行</b>。提交后将直接发送至 Alex 的报价邮箱，无需复制粘贴。处理依据如下：
       </div>
     </div>
     <div class="security-law">
@@ -769,14 +786,19 @@ select.form-input option:disabled {
     </div>
   </section>
 
-  <button class="submit-btn" type="button" onclick="submitForm()">生成信息 · 发给 Alex</button>
+  <div class="honeypot" aria-hidden="true">
+    <label for="f-website">Website</label>
+    <input id="f-website" type="text" tabindex="-1" autocomplete="off">
+  </div>
+
+  <button class="submit-btn" id="submitBtn" type="button" onclick="submitForm()">提交资料 · 自动发给 Alex</button>
   <div class="error-tip" id="errorTip"></div>
 
-  <section class="result-card" id="resultCard">
-    <div class="result-title">请复制以下内容发给 Alex</div>
+  <section class="result-card" id="resultCard" aria-live="polite">
+    <div class="result-title" id="resultTitle">提交结果</div>
     <div class="result-body" id="resultText"></div>
   </section>
-  <button class="copy-btn" id="copyBtn" type="button" onclick="copyResult()">一键复制 · 发给 Alex</button>
+  <button class="copy-btn" id="copyBtn" type="button" onclick="copyResult()">自动发送失败 · 复制备用</button>
 
   <footer class="footer">
     <div class="footer-main">一次办理 · 终身托管</div>
@@ -788,6 +810,9 @@ select.form-input option:disabled {
 let currentType = 'energy';
 let businessProduct = 'energy';
 let selectedGender = '';
+let isSubmitting = false;
+
+const CONTRACT_INTAKE_API = 'https://alexqi01.jidingding.cn/api/public/contract-intake';
 
 const businessProductLabels = {
   energy: '商业用电合同',
@@ -924,6 +949,24 @@ function validate() {
     }
   }
 
+  if (!document.getElementById('f-email').checkValidity()) {
+    showError('请填写正确的邮箱');
+    focusField('f-email');
+    return false;
+  }
+
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(getValue('f-dob'))) {
+    showError('出生日期请按 TT.MM.JJJJ 填写');
+    focusField('f-dob');
+    return false;
+  }
+
+  if (!/^\d{5}$/.test(getValue('f-plz'))) {
+    showError('请填写 5 位德国邮编');
+    focusField('f-plz');
+    return false;
+  }
+
   if (isBusiness()) {
     const businessRequired = [
       { id: 'f-company', label: '公司名称' },
@@ -948,6 +991,13 @@ function validate() {
 
   if (isNetworkContract() && !getValue('f-iban')) {
     showError('网络合同需要填写 IBAN');
+    focusField('f-iban');
+    return false;
+  }
+
+  const iban = getValue('f-iban').replace(/\s+/g, '').toUpperCase();
+  if (iban && !/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) {
+    showError('请填写正确的 IBAN');
     focusField('f-iban');
     return false;
   }
@@ -997,9 +1047,7 @@ function appendMeterLines(lines) {
   }
 }
 
-function submitForm() {
-  if (!validate()) return;
-
+function buildSummaryText() {
   const lines = [
     '【' + getTypeLabel() + '信息】',
     '─────────────────',
@@ -1038,14 +1086,88 @@ function submitForm() {
   lines.push('─────────────────');
   lines.push('本人确认：以上信息依据 DSGVO Art. 6 Abs. 1 lit. b 授权用于本次合同签署与履行');
 
-  const text = lines.join('\n');
-  document.getElementById('resultText').textContent = text;
-  document.getElementById('resultCard').style.display = 'block';
-  document.getElementById('copyBtn').style.display = 'block';
+  return lines.join('\n');
+}
 
-  setTimeout(() => {
-    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
-  }, 100);
+function buildSubmissionPayload() {
+  const meterNumberSent = document.getElementById('check-zaehler').checked;
+  const maloIdSent = document.getElementById('check-malo').checked;
+  return {
+    contractType: currentType,
+    businessProduct: isBusiness() ? businessProduct : '',
+    gender: selectedGender,
+    lastName: getValue('f-lastname'),
+    firstName: getValue('f-firstname'),
+    dateOfBirth: getValue('f-dob'),
+    email: getValue('f-email'),
+    phone: getValue('f-phone'),
+    company: isBusiness() ? getValue('f-company') : '',
+    legalForm: isBusiness() ? getValue('f-legal-form') : '',
+    taxNumber: isBusiness() ? getValue('f-tax-number') : '',
+    vatId: isBusiness() ? getValue('f-vat-id') : '',
+    industry: isBusiness() ? getValue('f-industry') : '',
+    street: getValue('f-street'),
+    houseNumber: getValue('f-number'),
+    postalCode: getValue('f-plz'),
+    city: getValue('f-city'),
+    meterNumber: meterNumberSent ? '' : getValue('f-zaehler'),
+    meterNumberSent,
+    maloId: maloIdSent ? '' : getValue('f-malo'),
+    maloIdSent,
+    iban: getValue('f-iban').replace(/\s+/g, '').toUpperCase(),
+    consent: true,
+    website: getValue('f-website'),
+    pageUrl: window.location.href
+  };
+}
+
+function showSubmissionResult(title, text, success) {
+  const card = document.getElementById('resultCard');
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultText').textContent = text;
+  card.classList.toggle('success', success);
+  card.style.display = 'block';
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth' }), 100);
+}
+
+async function submitForm() {
+  if (isSubmitting || !validate()) return;
+
+  const text = buildSummaryText();
+  const button = document.getElementById('submitBtn');
+  const copyButton = document.getElementById('copyBtn');
+  isSubmitting = true;
+  button.disabled = true;
+  button.textContent = '正在安全发送…';
+  copyButton.style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+
+  try {
+    const response = await fetch(CONTRACT_INTAKE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildSubmissionPayload())
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || result.message || '自动发送失败，请稍后再试');
+    }
+
+    showSubmissionResult(
+      '提交成功 · 已自动发送',
+      getTypeLabel() + '\n' + getValue('f-lastname') + ' ' + getValue('f-firstname') + '\n\n资料已发送至 Alex 的报价邮箱。\n无需再复制或转发。',
+      true
+    );
+    button.textContent = '已提交 · Alex 将通过邮箱收到';
+  } catch (error) {
+    showError(error.message || '自动发送失败，请稍后再试');
+    showSubmissionResult('自动发送失败 · 可复制备用', text, false);
+    copyButton.style.display = 'block';
+    button.disabled = false;
+    button.textContent = '重新提交 · 自动发给 Alex';
+  } finally {
+    isSubmitting = false;
+  }
 }
 
 function copyResult() {
@@ -1053,10 +1175,10 @@ function copyResult() {
   const btn = document.getElementById('copyBtn');
 
   const done = () => {
-    btn.textContent = '已复制，发给 Alex 就好';
+    btn.textContent = '已复制 · 请手动发给 Alex';
     btn.classList.add('copy-success');
     setTimeout(() => {
-      btn.textContent = '一键复制 · 发给 Alex';
+      btn.textContent = '自动发送失败 · 复制备用';
       btn.classList.remove('copy-success');
     }, 2500);
   };
