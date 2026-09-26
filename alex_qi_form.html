@@ -610,7 +610,7 @@ select.form-input option:disabled {
     </div>
     <div class="form-row">
       <label class="form-label" for="f-dob">出生日期<span class="req">*</span></label>
-      <input class="form-input" id="f-dob" type="text" placeholder="TT.MM.JJJJ" inputmode="numeric" autocomplete="bday">
+      <input class="form-input" id="f-dob" type="text" placeholder="输入8位数字，如 01061990" inputmode="numeric" maxlength="10" autocomplete="bday">
     </div>
     <div class="form-row">
       <label class="form-label" for="f-email">邮箱<span class="req">*</span></label>
@@ -923,6 +923,14 @@ function focusField(id) {
   document.getElementById(id).focus();
 }
 
+function formatDateOfBirth(input) {
+  const digits = input.value.replace(/\D/g, '').slice(0, 8);
+  const parts = [digits.slice(0, 2)];
+  if (digits.length > 2) parts.push(digits.slice(2, 4));
+  if (digits.length > 4) parts.push(digits.slice(4));
+  input.value = parts.join('.');
+}
+
 function validate() {
   if (!selectedGender) {
     showError('请选择性别');
@@ -1196,6 +1204,10 @@ function copyResult() {
     done();
   }
 }
+
+document.getElementById('f-dob').addEventListener('input', event => {
+  formatDateOfBirth(event.currentTarget);
+});
 
 updateUi();
 </script>
