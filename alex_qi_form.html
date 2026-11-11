@@ -1,35 +1,83 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>合同信息收集 · Alex Qi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1422">
+<meta name="description" content="小Q德国万事通合同信息表：填好提交，资料直接发给 Alex 出合同。">
+<title>小Q德国万事通 · 合同信息表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  try {
+    document.documentElement.dataset.theme = localStorage.getItem('aq-dark') !== '0' ? 'dark' : 'light';
+  } catch (error) {
+    document.documentElement.dataset.theme = 'dark';
+  }
+</script>
 <style>
 :root {
-  --bg: #F0F5F1;
-  --ink: #1F3024;
-  --ink-soft: #3D5A45;
-  --muted: #7A9680;
-  --line: #C9D6CB;
-  --wash: #E8EFE9;
-  --soft: #FAFBFA;
-  --danger: #C0392B;
-  --white: #FFFFFF;
+  --page: #f5f6f9;
+  --surface: #ffffff;
+  --ink: #111623;
+  --ink2: #586173;
+  --ink3: #8a93a6;
+  --line: #e4e8f0;
+  --fill: #f1f3f8;
+  --blue: #2b55ec;
+  --blue-soft: #ecf0ff;
+  --gold-soft: #fbf3e2;
+  --gold-ink: #8a6420;
+  --green: #109d69;
+  --green-soft: #e5f6ee;
+  --green-ink: #0b7a52;
+  --red: #d4544a;
+  --red-soft: #fdeeed;
+  --edge-dim: #e8ebf2;
+  --focus: #2b55ec;
+  --font: "Plus Jakarta Sans", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --page: #0f1422;
+  --surface: #1b2234;
+  --ink: #f0f3fa;
+  --ink2: #9aa4bc;
+  --ink3: #6f7c9c;
+  --line: #2b3450;
+  --fill: #232c44;
+  --blue: #5b7bff;
+  --blue-soft: #232c4e;
+  --gold-soft: #2e2818;
+  --gold-ink: #e8c98a;
+  --green: #1fb47e;
+  --green-soft: #142e26;
+  --green-ink: #7ce0b8;
+  --red: #e0685e;
+  --red-soft: #3a1f22;
+  --edge-dim: #141a2b;
+  --focus: #9db0ff;
 }
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
+  margin: 0;
   min-height: 100vh;
-  padding: 20px 16px 40px;
-  background: var(--bg);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--page);
+  background:
+    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--blue) 15%, transparent) 0 92px, transparent 93px),
+    var(--page);
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -39,457 +87,665 @@ select {
   font: inherit;
 }
 
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .page {
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
 }
 
-.brand-header {
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 20px 16px 16px;
-  background: var(--ink);
-  border-radius: 14px;
+/* 顶栏 */
+.topbar {
+  min-height: 66px;
+  padding: calc(14px + env(safe-area-inset-top)) 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.brand-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+.topbar-brand {
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.theme-btn {
+  width: 38px;
+  height: 38px;
+  padding: 9px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--ink2);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.theme-btn svg,
+.trust svg,
+.hero-stamp svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+:root[data-theme="light"] .theme-sun,
+:root[data-theme="dark"] .theme-moon {
+  display: none;
+}
+
+/* 头图 */
+.hero {
+  margin: 4px 16px 0;
+  min-height: 236px;
+  padding: 22px 22px 26px;
+  position: relative;
   overflow: hidden;
-  margin: 0 auto 10px;
-  border: 2px solid var(--ink-soft);
-  background: var(--wash);
+  border-radius: 28px;
+  color: #fff;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 42%),
+    linear-gradient(145deg, #1d2c56 0%, #17213c 52%, #10172a 100%);
+  box-shadow: 0 14px 36px rgba(9, 18, 42, 0.24);
 }
 
-.brand-avatar img {
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: -92px;
+  top: -92px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  box-shadow: 0 0 0 34px rgba(255, 255, 255, 0.035), 0 0 0 70px rgba(255, 255, 255, 0.025);
+}
+
+.hero-buddy {
+  width: 62px;
+  height: 59px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-buddy img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 25%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.3));
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.brand-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--white);
-  letter-spacing: 1px;
-  margin-bottom: 4px;
+.hero-copy {
+  width: 62%;
+  margin-top: 20px;
+  position: relative;
+  z-index: 1;
 }
 
-.brand-tag {
-  display: inline-block;
-  padding: 2px 10px;
-  background: var(--ink-soft);
-  color: var(--wash);
-  font-size: 10px;
-  letter-spacing: 2px;
+.hero h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.hero-copy p {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.hero-paper {
+  width: 112px;
+  height: 138px;
+  padding: 20px 16px;
+  position: absolute;
+  right: -6px;
+  bottom: 22px;
+  transform: rotate(7deg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  background: linear-gradient(160deg, #ffffff, #e6ecfa);
+  box-shadow: 0 16px 30px rgba(4, 9, 24, 0.38);
+}
+
+.hero-paper i {
+  display: block;
+  height: 6px;
+  margin-bottom: 9px;
   border-radius: 3px;
-  margin-bottom: 10px;
+  background: #d3dbec;
 }
 
-.brand-title {
-  font-size: 15px;
-  color: var(--white);
-  font-weight: 500;
-  letter-spacing: 1px;
+.hero-paper i:first-child {
+  width: 58%;
+  margin-bottom: 13px;
+  background: #3e6df4;
 }
 
+.hero-paper i.short {
+  width: 52%;
+}
+
+.hero-stamp {
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border-radius: 50%;
+  color: #fff;
+  background: #109d69;
+  box-shadow: 0 4px 10px rgba(16, 157, 105, 0.35);
+}
+
+.hero-stamp svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 3;
+}
+
+/* 内容区 */
+.content {
+  padding: 18px 16px 0;
+}
+
+.trust {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trust span {
+  min-height: 42px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--ink2);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.trust svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--green);
+}
+
+.panel {
+  margin-top: 12px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 5px 0 var(--edge-dim);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.panel-lead {
+  margin: -6px 0 14px;
+  color: var(--ink2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* 合同类型 */
 .type-switcher,
 .business-product-switcher {
   display: grid;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.type-switcher {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .business-product-switcher {
   display: none;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.business-product-label {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .type-btn,
 .product-btn {
-  min-height: 58px;
-  padding: 10px 6px;
-  background: var(--white);
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  color: var(--ink-soft);
+  min-width: 0;
+  padding: 12px 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--ink);
+  background: var(--fill);
   cursor: pointer;
   text-align: center;
   line-height: 1.35;
-  transition: all 0.15s;
-}
-
-.product-btn {
-  min-height: 46px;
-  font-size: 12.5px;
-  color: var(--ink);
+  transition: border-color 0.15s, background-color 0.15s;
 }
 
 .type-main {
   display: block;
-  color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .type-sub {
   display: block;
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 10.5px;
+  margin-top: 3px;
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.product-btn {
+  min-height: 44px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .type-btn.active,
 .product-btn.active {
-  background: var(--ink);
-  border-color: var(--ink);
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  box-shadow: inset 0 0 0 1px var(--blue);
 }
 
 .type-btn.active .type-main,
-.type-btn.active .type-sub,
 .product-btn.active {
-  color: var(--white);
+  color: var(--blue);
 }
 
-.security-box {
-  background: var(--wash);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+/* 资料用途 */
+.privacy p {
+  margin: 0;
+  color: var(--ink2);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.privacy b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.law {
+  margin-top: 12px;
   padding: 12px 14px;
-  margin-bottom: 16px;
-}
-
-.security-top {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.security-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  background: var(--ink);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 14px;
+  color: var(--ink2);
+  background: var(--fill);
   font-size: 12px;
-  color: var(--white);
-  font-weight: 600;
-  margin-top: 1px;
-}
-
-.security-main {
-  font-size: 12px;
-  color: var(--ink);
   line-height: 1.7;
 }
 
-.security-main b {
-  font-weight: 500;
-}
-
-.security-law {
-  background: var(--white);
-  border: 0.5px solid var(--line);
-  border-radius: 7px;
-  padding: 9px 12px;
-  font-size: 11px;
-  color: var(--ink-soft);
-  line-height: 1.7;
-}
-
-.security-law .law-ref {
-  font-weight: 500;
+.law b {
   color: var(--ink);
+  font-weight: 700;
 }
 
-.security-company {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 8px;
-  line-height: 1.5;
+.privacy .company {
+  margin-top: 10px;
+  font-size: 12px;
 }
 
-.form-section {
-  background: var(--white);
-  border-radius: 12px;
-  border: 0.5px solid var(--line);
-  margin-bottom: 12px;
-  overflow: hidden;
+/* 表单 */
+.field,
+.grid-2 {
+  margin-top: 14px;
+  min-width: 0;
 }
 
-.form-section[hidden] {
-  display: none;
-}
-
-.form-section-title {
-  background: var(--ink);
-  color: var(--white);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  padding: 8px 16px;
-}
-
-.form-row {
-  display: flex;
-  align-items: center;
-  padding: 11px 16px;
-  border-bottom: 0.5px solid var(--bg);
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
 }
 
-.form-row:last-child {
-  border-bottom: none;
+.grid-2 .field,
+.panel > h2 + .field,
+.panel > h2 + .grid-2,
+.panel-lead + .field {
+  margin-top: 0;
+}
+
+.grid-street {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+}
+
+.grid-city {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
 }
 
 .form-label {
-  flex-shrink: 0;
-  width: 92px;
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 7px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.form-label .req {
-  color: var(--danger);
-  margin-left: 2px;
-}
-
-.form-label .opt {
-  color: #B5C4B7;
-  font-size: 10.5px;
-  margin-left: 2px;
+.opt {
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: var(--ink2);
+  background: var(--fill);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .form-input {
-  flex: 1;
-  min-width: 0;
+  display: block;
   width: 100%;
-  border: none;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   outline: none;
-  padding: 0;
-  background: transparent;
   color: var(--ink);
-  font-size: 13px;
-  font-family: inherit;
+  background: var(--fill);
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-input::placeholder {
-  color: var(--line);
+  color: var(--ink3);
+  opacity: 1;
 }
 
-.form-input:disabled {
-  opacity: 0.35;
+.form-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 18%, transparent);
+}
+
+.form-input.is-invalid,
+.gender-group.is-invalid .gender-btn {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -6px;
+  border-right: 2px solid var(--ink2);
+  border-bottom: 2px solid var(--ink2);
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 select.form-input {
-  min-height: 24px;
-  color: var(--ink);
+  padding-right: 40px;
+  cursor: pointer;
 }
 
 select.form-input:invalid {
-  color: var(--line);
+  color: var(--ink3);
 }
 
 select.form-input option {
   color: var(--ink);
-  background: var(--white);
-}
-
-select.form-input option:disabled {
-  color: var(--line);
+  background: var(--surface);
 }
 
 .gender-group {
-  display: flex;
-  gap: 8px;
-  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .gender-btn {
-  flex: 1;
-  min-height: 34px;
-  padding: 7px 0;
+  min-height: 48px;
+  padding: 10px 8px;
   border: 1px solid var(--line);
-  border-radius: 6px;
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  background: var(--white);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--fill);
   cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
+  font-size: 15px;
+  font-weight: 700;
+  transition: border-color 0.15s, background-color 0.15s;
 }
 
 .gender-btn.active {
-  background: var(--ink);
-  color: var(--white);
-  border-color: var(--ink);
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-soft);
+  box-shadow: inset 0 0 0 1px var(--blue);
 }
 
-.hint-row {
-  padding: 10px 16px;
-  border-bottom: 0.5px solid var(--bg);
-  background: var(--soft);
-  font-size: 11.5px;
-  color: var(--muted);
+.hint {
+  margin: -4px 0 14px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  color: var(--gold-ink);
+  background: var(--gold-soft);
+  font-size: 13px;
   line-height: 1.6;
 }
 
-.sent-row {
-  padding: 10px 16px;
-  border-bottom: 0.5px solid var(--bg);
-  background: var(--soft);
+.meter-block + .meter-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
 }
 
-.sent-check-label,
-.iban-toggle-label {
+.check-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--ink2);
+  font-size: 13px;
+  line-height: 1.6;
   cursor: pointer;
 }
 
-.sent-check-label input[type="checkbox"],
-.iban-toggle-label input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  accent-color: var(--ink);
+.check-row input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--blue);
   cursor: pointer;
-  flex-shrink: 0;
 }
 
-.sent-text {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.4;
+.check-row b {
+  color: var(--ink);
+  font-weight: 700;
 }
 
-.sent-text b {
-  font-weight: 500;
-  color: var(--ink-soft);
-  font-size: 11.5px;
-}
-
-.iban-toggle-row {
-  padding: 11px 16px;
-  border-bottom: 0.5px solid var(--bg);
-}
-
-.iban-toggle-label span {
-  font-size: 12.5px;
-  color: var(--ink-soft);
-}
-
-.iban-toggle-label .iban-opt {
-  font-size: 11px;
-  color: #B5C4B7;
+.check-row .opt {
   margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.iban-toggle-row .check-row {
+  align-items: center;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.iban-toggle-row .check-row input[type="checkbox"] {
+  margin-top: 0;
 }
 
 .required-note {
   display: none;
-  padding: 10px 16px 4px;
-  font-size: 11.5px;
-  color: var(--danger);
-  line-height: 1.5;
-}
-
-.submit-btn {
-  width: 100%;
-  min-height: 50px;
-  padding: 15px;
-  background: var(--ink);
-  color: var(--white);
-  border: none;
+  margin: 0;
+  padding: 11px 13px;
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
+  color: var(--gold-ink);
+  background: var(--gold-soft);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
-.submit-btn:active,
-.copy-btn:active {
-  opacity: 0.85;
+/* 提交 */
+.submit-area {
+  padding: 22px 16px 0;
+}
+
+.submit-btn,
+.copy-btn {
+  width: 100%;
+  min-height: 58px;
+  padding: 14px 18px;
+  display: block;
+  border: 0;
+  border-radius: 17px;
+  color: #fff;
+  background: linear-gradient(145deg, #3868f1, #2449d2);
+  box-shadow: 0 5px 0 #1937a9, 0 12px 24px rgba(43, 85, 236, 0.22);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.submit-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #1937a9, 0 8px 18px rgba(43, 85, 236, 0.18);
 }
 
 .submit-btn:disabled {
   cursor: wait;
-  opacity: 0.65;
+  opacity: 0.7;
+  transform: none;
+}
+
+.submit-note {
+  margin: 14px 8px 0;
+  color: var(--ink2);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.copy-btn {
+  display: none;
+  margin-top: 14px;
+  min-height: 52px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 0 var(--edge-dim);
+}
+
+.copy-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--edge-dim);
+}
+
+.copy-btn.copy-success {
+  color: var(--green-ink);
+  border-color: var(--green);
+  background: var(--green-soft);
 }
 
 .error-tip {
   display: none;
-  background: #FEF0EF;
-  border: 1px solid #F5C6C3;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 12.5px;
-  color: var(--danger);
-  margin-bottom: 12px;
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 20;
+  max-width: 488px;
+  margin: 0 auto;
+  padding: 13px 16px;
+  border-radius: 14px;
+  color: #fff;
+  background: #c4433a;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
   text-align: center;
 }
 
 .result-card {
   display: none;
-  background: var(--white);
-  border-radius: 12px;
-  border: 0.5px solid var(--line);
+  margin-top: 16px;
   overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.result-card.success .result-title {
-  background: #2A5C36;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 5px 0 var(--edge-dim);
 }
 
 .result-title {
-  background: var(--ink);
-  color: var(--white);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  padding: 8px 16px;
+  padding: 14px 18px;
+  color: var(--gold-ink);
+  background: var(--gold-soft);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.result-card.success .result-title {
+  color: var(--green-ink);
+  background: var(--green-soft);
 }
 
 .result-body {
-  padding: 14px 16px;
-  font-size: 13px;
+  padding: 14px 18px 18px;
   color: var(--ink);
-  line-height: 2;
+  font-size: 14px;
+  line-height: 1.9;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.copy-btn {
-  display: none;
-  width: 100%;
-  min-height: 48px;
-  padding: 14px;
-  background: var(--ink-soft);
-  color: var(--white);
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  letter-spacing: 1px;
-}
-
-.copy-success {
-  background: #2A5C36;
 }
 
 .honeypot {
@@ -501,309 +757,354 @@ select.form-input option:disabled {
 }
 
 .footer {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink2);
   text-align: center;
-  margin-top: 16px;
 }
 
-.footer-main {
-  font-size: 13px;
-  font-weight: 500;
+.footer strong {
   color: var(--ink);
-  letter-spacing: 3px;
-  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.footer-sub {
-  font-size: 10.5px;
-  color: var(--muted);
-  letter-spacing: 2px;
+.footer span {
+  font-size: 12px;
 }
 
-@media (max-width: 420px) {
-  body {
-    padding-left: 12px;
-    padding-right: 12px;
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 25px;
   }
 
-  .type-switcher,
-  .business-product-switcher {
-    gap: 8px;
+  .hero-copy {
+    width: 64%;
   }
 
-  .type-btn {
-    min-height: 62px;
+  .hero-paper {
+    right: -22px;
+    transform: rotate(9deg) scale(0.9);
+  }
+
+  .trust {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 18px 16px;
   }
 
   .type-main {
-    font-size: 12.5px;
+    font-size: 14px;
   }
 
-  .type-sub {
-    font-size: 10px;
+  .grid-city,
+  .grid-street {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
   }
+}
 
-  .form-label {
-    width: 86px;
+@media (prefers-reduced-motion: reduce) {
+  .type-btn,
+  .product-btn,
+  .gender-btn {
+    transition: none;
   }
 }
 </style>
 </head>
 <body>
 <main class="page">
-  <header class="brand-header">
-    <div class="brand-avatar"><img id="avatarImg" src="alex-avatar.jpg" alt="Alex Qi"></div>
-    <div class="brand-name">Alex Qi</div>
-    <div class="brand-tag">合同严选</div>
-    <div class="brand-title">合同信息收集</div>
+  <header class="topbar">
+    <span class="topbar-brand">小Q德国万事通</span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="切换深色和浅色">
+      <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
+      <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
   </header>
 
-  <nav class="type-switcher" aria-label="选择合同类型">
-    <button class="type-btn active" id="btn-energy" type="button" onclick="switchType('energy')">
-      <span class="type-main">电 / 气</span>
-      <span class="type-sub">IBAN 选填</span>
-    </button>
-    <button class="type-btn" id="btn-network" type="button" onclick="switchType('network')">
-      <span class="type-main">网络</span>
-      <span class="type-sub">IBAN 必填</span>
-    </button>
-    <button class="type-btn" id="btn-business" type="button" onclick="switchType('business')">
-      <span class="type-main">商业</span>
-      <span class="type-sub">电气网</span>
-    </button>
-  </nav>
+  <section class="hero">
+    <div class="hero-buddy" aria-hidden="true"><img src="xiaoq-3d.png" alt="" draggable="false"></div>
+    <div class="hero-copy">
+      <h1>填写合同信息</h1>
+      <p>填好点最下面的按钮，资料直接发给 Alex 出合同，不用截图，也不用复制。</p>
+    </div>
+    <div class="hero-paper" aria-hidden="true">
+      <i></i><i></i><i></i><i class="short"></i>
+      <span class="hero-stamp"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+    </div>
+  </section>
 
-  <div class="business-product-switcher" id="businessProductSwitcher" aria-label="选择商业合同业务">
-    <button class="product-btn active" id="btn-business-energy" type="button" onclick="switchBusinessProduct('energy')">商业用电</button>
-    <button class="product-btn" id="btn-business-gas" type="button" onclick="switchBusinessProduct('gas')">商业用气</button>
-    <button class="product-btn" id="btn-business-network" type="button" onclick="switchBusinessProduct('network')">商业网络</button>
-  </div>
+  <div class="content">
+    <div class="trust" aria-label="资料说明">
+      <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>直接发给 Alex</span>
+      <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-5"/></svg>只用于这次合同</span>
+    </div>
 
-  <section class="security-box" aria-label="数据用途说明">
-    <div class="security-top">
-      <div class="security-icon">i</div>
-      <div class="security-main">
-        以下信息<b>仅用于本次合同的签署与履行</b>。提交后将直接发送至 Alex 的报价邮箱，无需复制粘贴。处理依据如下：
+    <section class="panel" aria-labelledby="type-heading">
+      <h2 id="type-heading">办哪种合同</h2>
+      <nav class="type-switcher" aria-label="选择合同类型">
+        <button class="type-btn active" id="btn-energy" type="button" onclick="switchType('energy')">
+          <span class="type-main">电 / 气</span>
+          <span class="type-sub">IBAN 选填</span>
+        </button>
+        <button class="type-btn" id="btn-network" type="button" onclick="switchType('network')">
+          <span class="type-main">网络</span>
+          <span class="type-sub">IBAN 必填</span>
+        </button>
+        <button class="type-btn" id="btn-business" type="button" onclick="switchType('business')">
+          <span class="type-main">商业</span>
+          <span class="type-sub">电、气、网</span>
+        </button>
+      </nav>
+
+      <div class="business-product-switcher" id="businessProductSwitcher" role="group" aria-label="选择商业合同业务">
+        <p class="business-product-label">商业合同办哪一项</p>
+        <button class="product-btn active" id="btn-business-energy" type="button" onclick="switchBusinessProduct('energy')">商业用电</button>
+        <button class="product-btn" id="btn-business-gas" type="button" onclick="switchBusinessProduct('gas')">商业用气</button>
+        <button class="product-btn" id="btn-business-network" type="button" onclick="switchBusinessProduct('network')">商业网络</button>
       </div>
-    </div>
-    <div class="security-law">
-      <span class="law-ref">DSGVO Art. 6 Abs. 1 lit. b</span>：个人数据及公司信息的处理仅在履行合同所必要的范围内进行，不得用于任何合同目的之外的用途。
-    </div>
-    <div class="security-company">挂靠德国合规团队 manyreason，身份可查证</div>
-  </section>
+    </section>
 
-  <section class="form-section">
-    <div class="form-section-title" id="person-title">个人信息</div>
-    <div class="form-row">
-      <div class="form-label">性别<span class="req">*</span></div>
-      <div class="gender-group">
-        <button class="gender-btn" type="button" data-value="Herr" onclick="selectGender(this)">男 (Herr)</button>
-        <button class="gender-btn" type="button" data-value="Frau" onclick="selectGender(this)">女 (Frau)</button>
+    <section class="panel privacy" aria-labelledby="privacy-heading">
+      <h2 id="privacy-heading">资料怎么用</h2>
+      <p>以下信息<b>只用于本次合同的签署与履行</b>。提交后直接发到 Alex 的报价邮箱，不用复制粘贴。</p>
+      <div class="law">
+        <b>DSGVO Art. 6 Abs. 1 lit. b</b>：个人数据及公司信息只在履行合同所必要的范围内处理，不用于合同以外的任何用途。
       </div>
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-lastname">姓<span class="req">*</span></label>
-      <input class="form-input" id="f-lastname" type="text" placeholder="Nachname" autocomplete="family-name">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-firstname">名<span class="req">*</span></label>
-      <input class="form-input" id="f-firstname" type="text" placeholder="Vorname" autocomplete="given-name">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-dob">出生日期<span class="req">*</span></label>
-      <input class="form-input" id="f-dob" type="text" placeholder="输入8位数字，如 01061990" inputmode="numeric" maxlength="10" autocomplete="bday">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-email">邮箱<span class="req">*</span></label>
-      <input class="form-input" id="f-email" type="email" placeholder="beispiel@email.com" inputmode="email" autocomplete="email">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-phone">手机号<span class="req">*</span></label>
-      <input class="form-input" id="f-phone" type="tel" placeholder="+49 ..." inputmode="tel" autocomplete="tel">
-    </div>
-  </section>
+      <p class="company">挂靠德国合规团队 manyreason，身份可查证。</p>
+    </section>
 
-  <section class="form-section" id="company-section" hidden>
-    <div class="form-section-title">公司信息</div>
-    <div class="form-row">
-      <label class="form-label" for="f-company">公司名称<span class="req">*</span></label>
-      <input class="form-input" id="f-company" type="text" placeholder="Firmenname" autocomplete="organization">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-legal-form">Rechtsform<span class="req">*</span></label>
-      <select class="form-input" id="f-legal-form" required>
-        <option value="" selected disabled>请选择公司形式</option>
-        <option>Ohne</option>
-        <option>AdöR</option>
-        <option>AG</option>
-        <option>AG &amp; Co. KG</option>
-        <option>AG &amp; Co. OHG</option>
-        <option>BGB</option>
-        <option>e.G.</option>
-        <option>e.K.</option>
-        <option>e.V.</option>
-        <option>Einzeluntern.</option>
-        <option>EWIV</option>
-        <option>G-REIT</option>
-        <option>GbR</option>
-        <option>gGmbH</option>
-        <option>GmbH</option>
-        <option>GmbH &amp; Co. KG</option>
-        <option>GmbH &amp; Co. OHG</option>
-        <option>HGB</option>
-        <option>invAG</option>
-        <option>KdöR</option>
-        <option>KG</option>
-        <option>KG &amp; Co. KG</option>
-        <option>KGaA</option>
-        <option>Ltd.</option>
-        <option>Ltd. &amp; Co. KG</option>
-        <option>OHG</option>
-        <option>OHG &amp; Co. KG</option>
-        <option>PartG</option>
-        <option>SCE</option>
-        <option>SE</option>
-        <option>Stiftung &amp; Co. KG</option>
-        <option>UG</option>
-        <option>UG &amp; Co. KG</option>
-        <option>VVaG</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-tax-number">税号<span class="opt">二选一</span></label>
-      <input class="form-input" id="f-tax-number" type="text" placeholder="Steuernummer">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-vat-id">USt-IdNr<span class="opt">二选一</span></label>
-      <input class="form-input" id="f-vat-id" type="text" placeholder="DE123456789">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-industry">行业<span class="req">*</span></label>
-      <select class="form-input" id="f-industry" required>
-        <option value="" selected disabled>请选择 Branche</option>
-        <option>Arztpraxen u. sonst. Gesundheitswesen</option>
-        <option>Bank- und Kreditgewerbe</option>
-        <option>Baugewerbe, Klempnerei, Installateure</option>
-        <option>Datenverarbeitungsdienstl. u. Reparatur</option>
-        <option>Dienstleistung für Sport, Sportanlagen</option>
-        <option>Dienstleistung für Unterhaltung, Freizeit</option>
-        <option>Einzelhandel/Kaufhaus/Versandhandel</option>
-        <option>Elektr., feinmech., mediz., opt. Geräte</option>
-        <option>Filmtheater und Filmherstellung</option>
-        <option>Friseurgewerbe/ Kosmetiksalons</option>
-        <option>Gastgewerbe mit Beherbergung</option>
-        <option>Gastronomie/Bar/Disco</option>
-        <option>Großhandel</option>
-        <option>Heime u. soziale Einrichtungen</option>
-        <option>Herstellung von Büromsch. und DV-Geräten</option>
-        <option>Immobilien u.Grundstücksdienstleistungen</option>
-        <option>Kfz-Handel, Instandhaltung, Reparatur</option>
-        <option>Land-, Forst- und Fischereiwirtschaft</option>
-        <option>Markt- u. Meinungsforschung</option>
-        <option>Möbel, Schmuck, Musik-,Sport/Spielgeräte</option>
-        <option>Rechts-, Steuer-, Unternehmensberatung</option>
-        <option>Religiöse Vereinigungen</option>
-        <option>Reparatur von Gebrauchsgütern</option>
-        <option>Saunen, Solarien, Fitnesszentren ua.</option>
-        <option>Schulen und Tagesstätten</option>
-        <option>Sonstiges Dienstleistungsgewerbe</option>
-        <option>Spiel-, Wett- und Lotteriewesen</option>
-        <option>Tankstellen</option>
-        <option>Textil-, Bekleidungs- und Ledergewerbe</option>
-        <option>Transport und Verkehr</option>
-        <option>Ver- und Entsorgung</option>
-        <option>Verbände, Parteien, Organisationen</option>
-        <option>Versicherungsgewerbe</option>
-        <option>Wäscherei und chemische Reinigung</option>
-        <option>prod. Gewerbe Lebensmittel</option>
-      </select>
-    </div>
-  </section>
+    <section class="panel">
+      <h2 id="person-title">个人信息</h2>
+      <p class="panel-lead">标了「选填」的可以空着，其他都要填。</p>
+      <div class="field">
+        <span class="form-label" id="gender-label">性别</span>
+        <div class="gender-group" id="gender-group" role="group" aria-labelledby="gender-label">
+          <button class="gender-btn" type="button" data-value="Herr" onclick="selectGender(this)">男 (Herr)</button>
+          <button class="gender-btn" type="button" data-value="Frau" onclick="selectGender(this)">女 (Frau)</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="form-label" for="f-lastname">姓</label>
+          <input class="form-input" id="f-lastname" type="text" placeholder="Nachname" autocomplete="family-name">
+        </div>
+        <div class="field">
+          <label class="form-label" for="f-firstname">名</label>
+          <input class="form-input" id="f-firstname" type="text" placeholder="Vorname" autocomplete="given-name">
+        </div>
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-dob">出生日期</label>
+        <input class="form-input" id="f-dob" type="text" placeholder="输入8位数字，如 01061990" inputmode="numeric" maxlength="10" autocomplete="bday">
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-email">邮箱</label>
+        <input class="form-input" id="f-email" type="email" placeholder="beispiel@email.com" inputmode="email" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-phone">手机号</label>
+        <input class="form-input" id="f-phone" type="tel" placeholder="+49 ..." inputmode="tel" autocomplete="tel">
+      </div>
+    </section>
 
-  <section class="form-section">
-    <div class="form-section-title" id="address-title">居住地址</div>
-    <div class="form-row">
-      <label class="form-label" for="f-street">街道名称<span class="req">*</span></label>
-      <input class="form-input" id="f-street" type="text" placeholder="Straße" autocomplete="street-address">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-number">街道号<span class="req">*</span></label>
-      <input class="form-input" id="f-number" type="text" placeholder="Hausnummer">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-plz">邮政编码<span class="req">*</span></label>
-      <input class="form-input" id="f-plz" type="text" placeholder="52062" inputmode="numeric" maxlength="5" autocomplete="postal-code">
-    </div>
-    <div class="form-row">
-      <label class="form-label" for="f-city">城市<span class="req">*</span></label>
-      <input class="form-input" id="f-city" type="text" placeholder="Stadt" autocomplete="address-level2">
-    </div>
-  </section>
+    <section class="panel" id="company-section" hidden>
+      <h2>公司信息</h2>
+      <div class="field">
+        <label class="form-label" for="f-company">公司名称</label>
+        <input class="form-input" id="f-company" type="text" placeholder="Firmenname" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-legal-form">公司形式 Rechtsform</label>
+        <div class="select-wrap">
+          <select class="form-input" id="f-legal-form" required>
+            <option value="" selected disabled>请选择公司形式</option>
+            <option>Ohne</option>
+            <option>AdöR</option>
+            <option>AG</option>
+            <option>AG &amp; Co. KG</option>
+            <option>AG &amp; Co. OHG</option>
+            <option>BGB</option>
+            <option>e.G.</option>
+            <option>e.K.</option>
+            <option>e.V.</option>
+            <option>Einzeluntern.</option>
+            <option>EWIV</option>
+            <option>G-REIT</option>
+            <option>GbR</option>
+            <option>gGmbH</option>
+            <option>GmbH</option>
+            <option>GmbH &amp; Co. KG</option>
+            <option>GmbH &amp; Co. OHG</option>
+            <option>HGB</option>
+            <option>invAG</option>
+            <option>KdöR</option>
+            <option>KG</option>
+            <option>KG &amp; Co. KG</option>
+            <option>KGaA</option>
+            <option>Ltd.</option>
+            <option>Ltd. &amp; Co. KG</option>
+            <option>OHG</option>
+            <option>OHG &amp; Co. KG</option>
+            <option>PartG</option>
+            <option>SCE</option>
+            <option>SE</option>
+            <option>Stiftung &amp; Co. KG</option>
+            <option>UG</option>
+            <option>UG &amp; Co. KG</option>
+            <option>VVaG</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-tax-number">税号 Steuernummer<span class="opt">二选一</span></label>
+        <input class="form-input" id="f-tax-number" type="text" placeholder="Steuernummer">
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-vat-id">USt-IdNr<span class="opt">二选一</span></label>
+        <input class="form-input" id="f-vat-id" type="text" placeholder="DE123456789">
+      </div>
+      <div class="field">
+        <label class="form-label" for="f-industry">行业 Branche</label>
+        <div class="select-wrap">
+          <select class="form-input" id="f-industry" required>
+            <option value="" selected disabled>请选择 Branche</option>
+            <option>Arztpraxen u. sonst. Gesundheitswesen</option>
+            <option>Bank- und Kreditgewerbe</option>
+            <option>Baugewerbe, Klempnerei, Installateure</option>
+            <option>Datenverarbeitungsdienstl. u. Reparatur</option>
+            <option>Dienstleistung für Sport, Sportanlagen</option>
+            <option>Dienstleistung für Unterhaltung, Freizeit</option>
+            <option>Einzelhandel/Kaufhaus/Versandhandel</option>
+            <option>Elektr., feinmech., mediz., opt. Geräte</option>
+            <option>Filmtheater und Filmherstellung</option>
+            <option>Friseurgewerbe/ Kosmetiksalons</option>
+            <option>Gastgewerbe mit Beherbergung</option>
+            <option>Gastronomie/Bar/Disco</option>
+            <option>Großhandel</option>
+            <option>Heime u. soziale Einrichtungen</option>
+            <option>Herstellung von Büromsch. und DV-Geräten</option>
+            <option>Immobilien u.Grundstücksdienstleistungen</option>
+            <option>Kfz-Handel, Instandhaltung, Reparatur</option>
+            <option>Land-, Forst- und Fischereiwirtschaft</option>
+            <option>Markt- u. Meinungsforschung</option>
+            <option>Möbel, Schmuck, Musik-,Sport/Spielgeräte</option>
+            <option>Rechts-, Steuer-, Unternehmensberatung</option>
+            <option>Religiöse Vereinigungen</option>
+            <option>Reparatur von Gebrauchsgütern</option>
+            <option>Saunen, Solarien, Fitnesszentren ua.</option>
+            <option>Schulen und Tagesstätten</option>
+            <option>Sonstiges Dienstleistungsgewerbe</option>
+            <option>Spiel-, Wett- und Lotteriewesen</option>
+            <option>Tankstellen</option>
+            <option>Textil-, Bekleidungs- und Ledergewerbe</option>
+            <option>Transport und Verkehr</option>
+            <option>Ver- und Entsorgung</option>
+            <option>Verbände, Parteien, Organisationen</option>
+            <option>Versicherungsgewerbe</option>
+            <option>Wäscherei und chemische Reinigung</option>
+            <option>prod. Gewerbe Lebensmittel</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
-  <section class="form-section" id="section-contract">
-    <div class="form-section-title" id="contract-title">电 / 气合同信息</div>
-    <div class="hint-row" id="business-contract-hint" style="display:none;">商业电 / 气可填写表号和 MaLo-ID；商业网络不需要这两项。</div>
+    <section class="panel">
+      <h2 id="address-title">居住地址</h2>
+      <div class="grid-2 grid-street">
+        <div class="field">
+          <label class="form-label" for="f-street">街道名称</label>
+          <input class="form-input" id="f-street" type="text" placeholder="Straße" autocomplete="street-address">
+        </div>
+        <div class="field">
+          <label class="form-label" for="f-number">街道号</label>
+          <input class="form-input" id="f-number" type="text" placeholder="Nr.">
+        </div>
+      </div>
+      <div class="grid-2 grid-city">
+        <div class="field">
+          <label class="form-label" for="f-plz">邮政编码</label>
+          <input class="form-input" id="f-plz" type="text" placeholder="52062" inputmode="numeric" maxlength="5" autocomplete="postal-code">
+        </div>
+        <div class="field">
+          <label class="form-label" for="f-city">城市</label>
+          <input class="form-input" id="f-city" type="text" placeholder="Stadt" autocomplete="address-level2">
+        </div>
+      </div>
+    </section>
 
-    <div id="block-zaehler">
-      <div class="sent-row">
-        <label class="sent-check-label" for="check-zaehler">
+    <section class="panel" id="section-contract">
+      <h2 id="contract-title">电 / 气合同信息</h2>
+      <p class="hint" id="business-contract-hint" style="display:none;">商业电 / 气可以填表号和 MaLo-ID；商业网络不需要这两项。</p>
+
+      <div class="meter-block" id="block-zaehler">
+        <label class="check-row" for="check-zaehler">
           <input type="checkbox" id="check-zaehler" onchange="toggleSent('zaehler', this)">
-          <span class="sent-text"><b id="zaehler-check-label">电表号 (Zählernummer)</b> 已发给 Alex · 无需填写</span>
+          <span><b id="zaehler-check-label">电表号 (Zählernummer)</b> 已经发给 Alex，不用再填</span>
         </label>
+        <div class="field" id="row-zaehler">
+          <label class="form-label" for="f-zaehler" id="zaehler-label">电表号<span class="opt">选填</span></label>
+          <input class="form-input" id="f-zaehler" type="text" placeholder="Zählernummer">
+        </div>
       </div>
-      <div class="form-row" id="row-zaehler">
-        <label class="form-label" for="f-zaehler" id="zaehler-label">电表号<span class="opt">选填</span></label>
-        <input class="form-input" id="f-zaehler" type="text" placeholder="Zählernummer">
-      </div>
-    </div>
 
-    <div id="block-malo">
-      <div class="sent-row">
-        <label class="sent-check-label" for="check-malo">
+      <div class="meter-block" id="block-malo">
+        <label class="check-row" for="check-malo">
           <input type="checkbox" id="check-malo" onchange="toggleSent('malo', this)">
-          <span class="sent-text"><b>Marktlokations-ID</b> 已发给 Alex · 无需填写</span>
+          <span><b>Marktlokations-ID</b> 已经发给 Alex，不用再填</span>
+        </label>
+        <div class="field" id="row-malo">
+          <label class="form-label" for="f-malo">MaLo-ID<span class="opt">选填</span></label>
+          <input class="form-input" id="f-malo" type="text" placeholder="Marktlokations-ID">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>银行信息</h2>
+      <div id="iban-toggle-row" class="iban-toggle-row">
+        <label class="check-row" for="iban-check">
+          <input type="checkbox" id="iban-check" onchange="toggleIban(this)">
+          <span>使用 IBAN 自动扣款</span>
+          <span class="opt">选填</span>
         </label>
       </div>
-      <div class="form-row" id="row-malo">
-        <label class="form-label" for="f-malo"><span style="font-size:11px;">MaLo-ID</span><span class="opt">选填</span></label>
-        <input class="form-input" id="f-malo" type="text" placeholder="Marktlokations-ID">
+      <p id="iban-required-note" class="required-note">网络合同需要 IBAN，用于每月自动扣款。</p>
+      <div class="field" id="iban-row" style="display:none;">
+        <label class="form-label" id="iban-label" for="f-iban">IBAN</label>
+        <input class="form-input" id="f-iban" type="text" placeholder="DE89 3704 0044 0532 0130 00" autocomplete="off">
       </div>
-    </div>
-  </section>
-
-  <section class="form-section">
-    <div class="form-section-title">银行信息</div>
-    <div id="iban-toggle-row" class="iban-toggle-row">
-      <label class="iban-toggle-label" for="iban-check">
-        <input type="checkbox" id="iban-check" onchange="toggleIban(this)">
-        <span>使用 IBAN 自动扣款</span>
-        <span class="iban-opt">选填</span>
-      </label>
-    </div>
-    <div id="iban-required-note" class="required-note">网络合同需要 IBAN 用于月费自动扣款</div>
-    <div class="form-row" id="iban-row" style="display:none;">
-      <label class="form-label" id="iban-label" for="f-iban">IBAN</label>
-      <input class="form-input" id="f-iban" type="text" placeholder="DE89 3704 0044 0532 0130 00" autocomplete="off">
-    </div>
-  </section>
+    </section>
+  </div>
 
   <div class="honeypot" aria-hidden="true">
     <label for="f-website">Website</label>
     <input id="f-website" type="text" tabindex="-1" autocomplete="off">
   </div>
 
-  <button class="submit-btn" id="submitBtn" type="button" onclick="submitForm()">提交资料 · 自动发给 Alex</button>
-  <div class="error-tip" id="errorTip"></div>
+  <div class="submit-area">
+    <button class="submit-btn" id="submitBtn" type="button" onclick="submitForm()">提交资料，自动发给 Alex</button>
+    <p class="submit-note">提交后资料直接到 Alex 的报价邮箱，他会按这些信息给你出合同。</p>
 
-  <section class="result-card" id="resultCard" aria-live="polite">
-    <div class="result-title" id="resultTitle">提交结果</div>
-    <div class="result-body" id="resultText"></div>
-  </section>
-  <button class="copy-btn" id="copyBtn" type="button" onclick="copyResult()">自动发送失败 · 复制备用</button>
+    <section class="result-card" id="resultCard" aria-live="polite">
+      <div class="result-title" id="resultTitle">提交结果</div>
+      <div class="result-body" id="resultText"></div>
+    </section>
+    <button class="copy-btn" id="copyBtn" type="button" onclick="copyResult()">复制资料，手动发给 Alex</button>
 
-  <footer class="footer">
-    <div class="footer-main">一次办理 · 终身托管</div>
-    <div class="footer-sub">ALEX QI · 合同严选</div>
-  </footer>
+    <footer class="footer">
+      <strong>小Q德国万事通</strong>
+      <span>一次办理，终身托管</span>
+    </footer>
+  </div>
+
+  <div class="error-tip" id="errorTip" role="alert"></div>
 </main>
 
 <script>
@@ -811,6 +1112,7 @@ let currentType = 'energy';
 let businessProduct = 'energy';
 let selectedGender = '';
 let isSubmitting = false;
+let errorTimer = 0;
 
 const CONTRACT_INTAKE_API = 'https://alexqi01.jidingding.cn/api/public/contract-intake';
 
@@ -819,6 +1121,26 @@ const businessProductLabels = {
   gas: '商业用气合同',
   network: '商业网络合同',
 };
+
+(function setupTheme() {
+  const root = document.documentElement;
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+
+  function applyTheme(theme) {
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem('aq-dark', theme === 'dark' ? '1' : '0');
+    } catch (error) {
+      // 无痕模式等存不了时照样切换
+    }
+    if (metaTheme) metaTheme.content = theme === 'dark' ? '#0F1422' : '#F5F6F9';
+  }
+
+  applyTheme(root.dataset.theme === 'light' ? 'light' : 'dark');
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+})();
 
 function isBusiness() {
   return currentType === 'business';
@@ -843,14 +1165,18 @@ function switchBusinessProduct(product) {
 }
 
 function updateUi() {
-  document.getElementById('btn-energy').classList.toggle('active', currentType === 'energy');
-  document.getElementById('btn-network').classList.toggle('active', currentType === 'network');
-  document.getElementById('btn-business').classList.toggle('active', isBusiness());
+  [['energy', currentType === 'energy'], ['network', currentType === 'network'], ['business', isBusiness()]].forEach(([type, on]) => {
+    const button = document.getElementById('btn-' + type);
+    button.classList.toggle('active', on);
+    button.setAttribute('aria-pressed', String(on));
+  });
 
   document.getElementById('businessProductSwitcher').style.display = isBusiness() ? 'grid' : 'none';
-  document.getElementById('btn-business-energy').classList.toggle('active', businessProduct === 'energy');
-  document.getElementById('btn-business-gas').classList.toggle('active', businessProduct === 'gas');
-  document.getElementById('btn-business-network').classList.toggle('active', businessProduct === 'network');
+  ['energy', 'gas', 'network'].forEach(product => {
+    const button = document.getElementById('btn-business-' + product);
+    button.classList.toggle('active', businessProduct === product);
+    button.setAttribute('aria-pressed', String(businessProduct === product));
+  });
 
   document.getElementById('company-section').hidden = !isBusiness();
   document.getElementById('person-title').textContent = isBusiness() ? '联系人 / 签约人信息' : '个人信息';
@@ -865,6 +1191,7 @@ function updateUi() {
   document.getElementById('business-contract-hint').style.display = isBusiness() ? '' : 'none';
 
   const showMeter = shouldShowMeterFields();
+  document.getElementById('section-contract').hidden = !showMeter;
   document.getElementById('block-zaehler').style.display = showMeter ? '' : 'none';
   document.getElementById('block-malo').style.display = showMeter ? '' : 'none';
 
@@ -875,26 +1202,28 @@ function updateUi() {
   const ibanToggleRow = document.getElementById('iban-toggle-row');
   const ibanRequiredNote = document.getElementById('iban-required-note');
   const ibanRow = document.getElementById('iban-row');
-  const ibanLabel = document.getElementById('iban-label');
   const ibanCheck = document.getElementById('iban-check');
 
   if (isNetworkContract()) {
     ibanToggleRow.style.display = 'none';
-    ibanRequiredNote.style.display = '';
-    ibanRow.style.display = 'flex';
-    ibanLabel.innerHTML = 'IBAN<span style="color:#C0392B;margin-left:2px;">*</span>';
+    ibanRequiredNote.style.display = 'block';
+    ibanRow.style.display = '';
   } else {
     ibanToggleRow.style.display = '';
     ibanRequiredNote.style.display = 'none';
-    ibanRow.style.display = ibanCheck.checked ? 'flex' : 'none';
-    ibanLabel.textContent = 'IBAN';
+    ibanRow.style.display = ibanCheck.checked ? '' : 'none';
   }
 }
 
 function selectGender(btn) {
-  document.querySelectorAll('.gender-btn').forEach(button => button.classList.remove('active'));
+  document.querySelectorAll('.gender-btn').forEach(button => {
+    button.classList.remove('active');
+    button.setAttribute('aria-pressed', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
   selectedGender = btn.dataset.value;
+  document.getElementById('gender-group').classList.remove('is-invalid');
 }
 
 function toggleSent(field, cb) {
@@ -904,14 +1233,14 @@ function toggleSent(field, cb) {
     row.style.display = 'none';
     input.value = '__已发给Alex__';
   } else {
-    row.style.display = 'flex';
+    row.style.display = '';
     input.value = '';
   }
 }
 
 function toggleIban(cb) {
   const row = document.getElementById('iban-row');
-  row.style.display = cb.checked ? 'flex' : 'none';
+  row.style.display = cb.checked ? '' : 'none';
   if (!cb.checked) document.getElementById('f-iban').value = '';
 }
 
@@ -920,7 +1249,18 @@ function getValue(id) {
 }
 
 function focusField(id) {
-  document.getElementById(id).focus();
+  const field = document.getElementById(id);
+  field.classList.add('is-invalid');
+  field.setAttribute('aria-invalid', 'true');
+  field.focus();
+}
+
+function clearInvalid(event) {
+  const field = event.target;
+  if (field && field.classList && field.classList.contains('is-invalid')) {
+    field.classList.remove('is-invalid');
+    field.removeAttribute('aria-invalid');
+  }
 }
 
 function formatDateOfBirth(input) {
@@ -934,6 +1274,9 @@ function formatDateOfBirth(input) {
 function validate() {
   if (!selectedGender) {
     showError('请选择性别');
+    const group = document.getElementById('gender-group');
+    group.classList.add('is-invalid');
+    group.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return false;
   }
 
@@ -1017,7 +1360,8 @@ function showError(msg) {
   const el = document.getElementById('errorTip');
   el.textContent = msg;
   el.style.display = 'block';
-  setTimeout(() => {
+  clearTimeout(errorTimer);
+  errorTimer = setTimeout(() => {
     el.style.display = 'none';
   }, 3000);
 }
@@ -1162,17 +1506,17 @@ async function submitForm() {
     }
 
     showSubmissionResult(
-      '提交成功 · 已自动发送',
-      getTypeLabel() + '\n' + getValue('f-lastname') + ' ' + getValue('f-firstname') + '\n\n资料已发送至 Alex 的报价邮箱。\n无需再复制或转发。',
+      '提交成功，已经发给 Alex',
+      getTypeLabel() + '\n' + getValue('f-lastname') + ' ' + getValue('f-firstname') + '\n\n资料已发送至 Alex 的报价邮箱。\n不用再复制或转发。',
       true
     );
-    button.textContent = '已提交 · Alex 将通过邮箱收到';
+    button.textContent = '已提交，Alex 会在邮箱收到';
   } catch (error) {
     showError(error.message || '自动发送失败，请稍后再试');
-    showSubmissionResult('自动发送失败 · 可复制备用', text, false);
+    showSubmissionResult('自动发送没成功，可以复制备用', text, false);
     copyButton.style.display = 'block';
     button.disabled = false;
-    button.textContent = '重新提交 · 自动发给 Alex';
+    button.textContent = '重新提交，自动发给 Alex';
   } finally {
     isSubmitting = false;
   }
@@ -1183,10 +1527,10 @@ function copyResult() {
   const btn = document.getElementById('copyBtn');
 
   const done = () => {
-    btn.textContent = '已复制 · 请手动发给 Alex';
+    btn.textContent = '已复制，请发给 Alex';
     btn.classList.add('copy-success');
     setTimeout(() => {
-      btn.textContent = '自动发送失败 · 复制备用';
+      btn.textContent = '复制资料，手动发给 Alex';
       btn.classList.remove('copy-success');
     }, 2500);
   };
@@ -1208,6 +1552,8 @@ function copyResult() {
 document.getElementById('f-dob').addEventListener('input', event => {
   formatDateOfBirth(event.currentTarget);
 });
+document.addEventListener('input', clearInvalid);
+document.addEventListener('change', clearInvalid);
 
 updateUi();
 </script>
