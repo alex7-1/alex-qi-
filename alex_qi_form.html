@@ -584,6 +584,28 @@ select.form-input option {
   border-top: 1px dashed var(--line);
 }
 
+/* 换供应商 / 新入住 */
+.scenario-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.scenario-group .type-btn {
+  padding: 12px 10px;
+}
+
+.scenario-group.is-invalid .type-btn {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.scenario-block + .meter-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
 .check-row {
   display: flex;
   align-items: flex-start;
@@ -1043,6 +1065,34 @@ select.form-input option {
       <h2 id="contract-title">电 / 气合同信息</h2>
       <p class="hint" id="business-contract-hint" style="display:none;">商业电 / 气可以填表号和 MaLo-ID；商业网络不需要这两项。</p>
 
+      <div class="scenario-block" id="block-scenario">
+        <span class="form-label" id="scenario-label">你现在是哪种情况？<span class="opt" id="scenario-opt" hidden>选填</span></span>
+        <div class="scenario-group" id="scenario-group" role="group" aria-labelledby="scenario-label">
+          <button class="type-btn" type="button" data-value="switch" aria-pressed="false" onclick="selectScenario(this)">
+            <span class="type-main">换供应商</span>
+            <span class="type-sub">已经住在这里、换一家电／气公司</span>
+          </button>
+          <button class="type-btn" type="button" data-value="movein" aria-pressed="false" onclick="selectScenario(this)">
+            <span class="type-main">新入住</span>
+            <span class="type-sub">刚搬进来、还没有自己的电／气合同</span>
+          </button>
+        </div>
+        <div id="row-switch" style="display:none;">
+          <div class="field">
+            <label class="form-label" for="f-prev-supplier">现在的电／气公司（看旧账单）<span class="opt">选填</span></label>
+            <input class="form-input" id="f-prev-supplier" type="text" placeholder="比如 Stadtwerke、E.ON" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="form-label" for="f-prev-customer">旧账单上的客户号 Kundennummer<span class="opt">选填</span></label>
+            <input class="form-input" id="f-prev-customer" type="text" placeholder="Kundennummer" autocomplete="off">
+          </div>
+        </div>
+        <div class="field" id="row-movein" style="display:none;">
+          <label class="form-label" for="f-movein">入住日期</label>
+          <input class="form-input" id="f-movein" type="text" placeholder="输入8位数字，如 01122026" inputmode="numeric" maxlength="10" autocomplete="off">
+        </div>
+      </div>
+
       <div class="meter-block" id="block-zaehler">
         <label class="check-row" for="check-zaehler">
           <input type="checkbox" id="check-zaehler" onchange="toggleSent('zaehler', this)">
@@ -1111,6 +1161,7 @@ select.form-input option {
 let currentType = 'energy';
 let businessProduct = 'energy';
 let selectedGender = '';
+let supplyScenario = '';
 let isSubmitting = false;
 let errorTimer = 0;
 
@@ -1192,8 +1243,10 @@ function updateUi() {
 
   const showMeter = shouldShowMeterFields();
   document.getElementById('section-contract').hidden = !showMeter;
+  document.getElementById('block-scenario').style.display = showMeter ? '' : 'none';
   document.getElementById('block-zaehler').style.display = showMeter ? '' : 'none';
   document.getElementById('block-malo').style.display = showMeter ? '' : 'none';
+  updateScenarioUi();
 
   const meterText = isBusiness() && businessProduct === 'gas' ? '气表号' : isBusiness() ? '表号' : '电表号';
   document.getElementById('zaehler-label').innerHTML = meterText + '<span class="opt">选填</span>';
@@ -1224,6 +1277,42 @@ function selectGender(btn) {
   btn.setAttribute('aria-pressed', 'true');
   selectedGender = btn.dataset.value;
   document.getElementById('gender-group').classList.remove('is-invalid');
+}
+
+// 换供应商 / 新入住：私人电 / 气必选，商业电 / 气选填，网络合同不问。
+function scenarioRequired() {
+  return currentType === 'energy';
+}
+
+function currentScenario() {
+  return shouldShowMeterFields() ? supplyScenario : '';
+}
+
+function selectScenario(btn) {
+  supplyScenario = btn.dataset.value;
+  document.getElementById('scenario-group').classList.remove('is-invalid');
+  updateScenarioUi();
+}
+
+function updateScenarioUi() {
+  document.querySelectorAll('#scenario-group .type-btn').forEach(button => {
+    const on = button.dataset.value === supplyScenario;
+    button.classList.toggle('active', on);
+    button.setAttribute('aria-pressed', String(on));
+  });
+  document.getElementById('scenario-opt').hidden = scenarioRequired();
+  document.getElementById('row-switch').style.display = supplyScenario === 'switch' ? '' : 'none';
+  document.getElementById('row-movein').style.display = supplyScenario === 'movein' ? '' : 'none';
+}
+
+function isRealGermanDate(value) {
+  const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
+  if (!match) return false;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
 function toggleSent(field, cb) {
@@ -1340,6 +1429,28 @@ function validate() {
     }
   }
 
+  if (shouldShowMeterFields()) {
+    if (scenarioRequired() && !supplyScenario) {
+      showError('请选择换供应商还是新入住');
+      const group = document.getElementById('scenario-group');
+      group.classList.add('is-invalid');
+      group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+
+    if (supplyScenario === 'movein' && !getValue('f-movein')) {
+      showError('请填写「入住日期」');
+      focusField('f-movein');
+      return false;
+    }
+
+    if (supplyScenario === 'movein' && !isRealGermanDate(getValue('f-movein'))) {
+      showError('入住日期请按 TT.MM.JJJJ 填写');
+      focusField('f-movein');
+      return false;
+    }
+  }
+
   if (isNetworkContract() && !getValue('f-iban')) {
     showError('网络合同需要填写 IBAN');
     focusField('f-iban');
@@ -1372,6 +1483,18 @@ function getTypeLabel() {
   return businessProductLabels[businessProduct];
 }
 
+function appendScenarioLines(lines) {
+  const scenario = currentScenario();
+  if (scenario === 'switch') {
+    lines.push('办理方式：换供应商');
+    lines.push('原供应商：' + (getValue('f-prev-supplier') || '暂无'));
+    lines.push('原供应商客户号：' + (getValue('f-prev-customer') || '暂无'));
+  } else if (scenario === 'movein') {
+    lines.push('办理方式：新入住');
+    lines.push('入住日期：' + getValue('f-movein'));
+  }
+}
+
 function appendMeterLines(lines) {
   if (!shouldShowMeterFields()) return;
 
@@ -1382,6 +1505,7 @@ function appendMeterLines(lines) {
   const meterLabel = isBusiness() && businessProduct === 'gas' ? '气表号' : isBusiness() ? '表号' : '电表号';
 
   lines.push('─────────────────');
+  appendScenarioLines(lines);
   if (zaehlerSent) {
     lines.push(meterLabel + '：（已单独发送给 Alex）');
   } else if (zaehler) {
@@ -1444,6 +1568,7 @@ function buildSummaryText() {
 function buildSubmissionPayload() {
   const meterNumberSent = document.getElementById('check-zaehler').checked;
   const maloIdSent = document.getElementById('check-malo').checked;
+  const scenario = currentScenario();
   return {
     contractType: currentType,
     businessProduct: isBusiness() ? businessProduct : '',
@@ -1466,6 +1591,10 @@ function buildSubmissionPayload() {
     meterNumberSent,
     maloId: maloIdSent ? '' : getValue('f-malo'),
     maloIdSent,
+    supplyScenario: scenario,
+    previousSupplier: scenario === 'switch' ? getValue('f-prev-supplier') : '',
+    previousCustomerNumber: scenario === 'switch' ? getValue('f-prev-customer') : '',
+    moveInDate: scenario === 'movein' ? getValue('f-movein') : '',
     iban: getValue('f-iban').replace(/\s+/g, '').toUpperCase(),
     consent: true,
     website: getValue('f-website'),
@@ -1550,6 +1679,10 @@ function copyResult() {
 }
 
 document.getElementById('f-dob').addEventListener('input', event => {
+  formatDateOfBirth(event.currentTarget);
+});
+// 入住日期和出生日期一样：只打 8 位数字，自动加点（iPhone 上不用日期选择器）。
+document.getElementById('f-movein').addEventListener('input', event => {
   formatDateOfBirth(event.currentTarget);
 });
 document.addEventListener('input', clearInvalid);
